@@ -15,6 +15,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:anime_app/main.dart';
+
 late Box animeBox;
 
 class AnimeDetail extends StatefulWidget {
@@ -61,7 +62,6 @@ class AnimeDetail extends StatefulWidget {
 }
 
 class _AnimeDetailState extends State<AnimeDetail> {
-
   final PagingController<int, Data> _pagingController =
       PagingController(firstPageKey: 0);
 
@@ -179,7 +179,7 @@ class _AnimeDetailState extends State<AnimeDetail> {
                                 Container(
                                   width: 28,
                                   child: IconButton(
-                                    iconSize: 28,
+                                      iconSize: 28,
                                       onPressed: () {
                                         final value = widget.self;
                                         final key = widget.animeTitle;

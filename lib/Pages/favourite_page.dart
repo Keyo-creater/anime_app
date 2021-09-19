@@ -88,7 +88,7 @@ class _FavouritePageState extends State<FavouritePage> {
                                           return Dialog(
                                             child: ClipRRect(
                                               borderRadius: BorderRadius.all(
-                                                  Radius.circular(20)),
+                                                  Radius.circular(30)),
                                               child: Container(
                                                   height: 200,
                                                   padding: EdgeInsets.all(10),
