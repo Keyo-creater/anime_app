@@ -65,25 +65,28 @@ class _AnimeDetailState extends State<AnimeDetail> {
   final PagingController<int, Data> _pagingController =
       PagingController(firstPageKey: 0);
 
+  bool isInFav = false;
+
   @override
   void initState() {
-    print("Anime ID: ${widget.animeId}");
-    // ApiService()
-    //     .getAnimeCharacterList(widget.animeId, 0)
-    //     .then((value) => print(value.toString()));
-
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
-    super.initState();
+
     animeBox = Hive.box(animeName);
+
+    // Check if anime is already in User's favourite list or not
+    if (animeBox.get(widget.animeTitle) != null) {
+      isInFav = true;
+    }
+
+    super.initState();
   }
 
   Future<void> _fetchPage(int pageKey) async {
     try {
       final response =
           await ApiService().getAnimeCharacterList(widget.animeId, 5, pageKey);
-      // final bool isLastPage = response.meta.count <= pageKey;
       final bool isLastPage = pageKey == 10;
       if (isLastPage) {
         _pagingController.appendLastPage(response.data);
@@ -162,13 +165,14 @@ class _AnimeDetailState extends State<AnimeDetail> {
                           horizontal: 16, vertical: 10),
                       child: Column(
                         children: [
-                          // ------ Anime Title Start ------
+                          // ------ Title & Favourite Icon Area Start ------
                           Container(
                             width: double.infinity,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // ------ Anime Title Start ------
                                 Container(
                                   width: MediaQuery.of(context).size.width - 70,
                                   child: Text(
@@ -176,25 +180,60 @@ class _AnimeDetailState extends State<AnimeDetail> {
                                     style: TextStyle(fontSize: 22),
                                   ),
                                 ),
+                                // ------ Anime Title End ------
+
+                                // ------ Favourite Icon End ------
                                 Container(
                                   width: 28,
                                   child: IconButton(
-                                      iconSize: 28,
-                                      onPressed: () {
-                                        final value = widget.self;
-                                        final key = widget.animeTitle;
-                                        animeBox.put(key, value);
-                                      },
-                                      icon: Icon(
-                                        Icons.favorite_border_outlined,
-                                        color: Colors.red,
-                                        size: 28,
-                                      )),
+                                    iconSize: 28,
+                                    onPressed: () {
+                                      final value = widget.self;
+                                      final key = widget.animeTitle;
+                                      setState(
+                                        () {
+                                          if (isInFav == true) {
+                                            isInFav = false;
+                                            // Add to Local Storage (animeBox)
+                                            animeBox.delete(key);
+                                            // Show message with SnackBar
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    "Removed from your favourite list!"),
+                                              ),
+                                            );
+                                          } else {
+                                            isInFav = true;
+                                            // Remove from Local Storage (aniweBox)
+                                            animeBox.put(key, value);
+                                            // Show message with SnackBar
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    "Added to your favourite list!"),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      );
+                                    },
+                                    icon: Icon(
+                                      isInFav
+                                          ? Icons.favorite
+                                          : Icons.favorite_border_outlined,
+                                      color: Colors.red,
+                                      size: 28,
+                                    ),
+                                  ),
                                 )
+                                // ------ Favourite Icon End ------
                               ],
                             ),
                           ),
-                          // ------ Anime Title End ------
+                          // ------ Title & Favourite Icon Area End ------
                           SizedBox(
                             height: 8,
                           ),
@@ -250,18 +289,21 @@ class _AnimeDetailState extends State<AnimeDetail> {
                             height: 8,
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            width: double.infinity,
-                            child: Text(
-                              widget.overview,
-                              // style: TextStyle(height: 1.5, fontSize: 16),
-                              style: GoogleFonts.openSans(
-                                height: 1.5,
-                                fontSize: 14,
-                              ),
-                              textAlign: TextAlign.justify,
-                            ),
-                          ),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              width: double.infinity,
+                              child: Text(
+                                widget.overview != "N/A"
+                                    ? widget.overview
+                                    : "WE ARE SORRY !\nThare is no Overview for this Anime yet!",
+                                style: GoogleFonts.openSans(
+                                  height: 1.5,
+                                  fontSize: 14,
+                                ),
+                                textAlign: widget.overview != "N/A"
+                                    ? TextAlign.justify
+                                    : TextAlign.center,
+                              )),
                           // ------ Anime Overview End ------
                           SizedBox(
                             height: 20,

@@ -102,7 +102,7 @@ class DrawerList extends StatelessWidget {
               color: myPrimaryColor,
             ),
             title: Text(
-              "CATEGORY",
+              "CATEGORIES",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
